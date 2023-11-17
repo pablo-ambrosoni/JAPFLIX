@@ -39,6 +39,7 @@ H3 {
 
 p {
     color: grey;
+    text-align: left;
 }
   
 .list-group {
@@ -71,4 +72,14 @@ p {
 .dropdown{
     margin-bottom: 5px;
     margin-right: 5px;
+}
+
+a {
+  text-decoration: none;
+  color: white;
+}
+
+a:hover {
+  text-decoration: none;
+  color: white;
 }

@@ -1,5 +1,14 @@
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     const url = "https://japceibal.github.io/japflix_api/movies-data.json";
+
+    function verificarAutenticacion() {
+        // Verifica si el usuario está logeado
+        if (!localStorage.getItem("japflixuser")) {
+            // Si no lo está, redirige al login
+            window.location.href = "login.html";
+        }
+    }
+    setInterval(verificarAutenticacion, 4000);
 
     // Variables para almacenar los datos de películas
     let moviesData = [];
@@ -47,7 +56,7 @@ document.addEventListener("DOMContentLoaded", function() {
             lista.appendChild(itemLista);
 
             // Agregar evento de clic para mostrar detalles de la película
-            itemLista.addEventListener("click", function() {
+            itemLista.addEventListener("click", function () {
                 mostrarDetallesPelicula(movie);
             });
         });
@@ -65,17 +74,17 @@ document.addEventListener("DOMContentLoaded", function() {
             itemLista.className = "list-group-item";
             itemLista.innerHTML = `
             <div class="movie-details">
-            <div class="title-and-stars">
-              <h3>${movie.title}</h3>
-              <p class="stars">Rating: ${convertirARatingEstrellas(movie.vote_average)}</p>
+                <div class="title-and-stars">
+                    <h3>${movie.title}</h3>
+                     <p class="stars">Rating: ${convertirARatingEstrellas(movie.vote_average)}</p>
+                </div>
+                <p class="tagline">${movie.tagline}</p>
             </div>
-            <p class="tagline">${movie.tagline}</p>
-          </div>
             `;
             lista.appendChild(itemLista);
 
             // Agregar evento de clic para mostrar detalles de la película
-            itemLista.addEventListener("click", function() {
+            itemLista.addEventListener("click", function () {
                 mostrarDetallesPelicula(movie);
             });
         });
@@ -92,7 +101,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Evento al presionar el botón de búsqueda
     const btnBuscar = document.getElementById("btnBuscar");
-    btnBuscar.addEventListener("click", function() {
+    btnBuscar.addEventListener("click", function () {
         const inputBuscar = document.getElementById("inputBuscar");
         const query = inputBuscar.value.trim();
 
@@ -106,7 +115,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Cargar los datos de películas al inicio
     cargarDatosDePeliculas();
-    
+
     function mostrarDetallesPelicula(pelicula) {
         const detalleTitulo = document.getElementById('detalleTitulo');
         const detalleOverview = document.getElementById('detalleOverview');
@@ -115,24 +124,61 @@ document.addEventListener("DOMContentLoaded", function() {
         const duracion = document.getElementById('duracion');
         const costeProduccion = document.getElementById('costeProduccion');
         const ganancias = document.getElementById('ganancias');
-      
+
         detalleTitulo.textContent = pelicula.title;
         detalleOverview.textContent = pelicula.overview;
         añoSalida.textContent = `Release year: ${new Date(pelicula.release_date).getFullYear()}`;
         duracion.textContent = `Duration: ${pelicula.runtime} minutos`;
         costeProduccion.textContent = `Cost of production: $${pelicula.budget}`;
         ganancias.textContent = `Profits: $${pelicula.revenue}`;
-      
+
         detalleGenres.innerHTML = '';
-      
-        
+
+
         pelicula.genres.forEach(genre => {
-          const genreItem = document.createElement('li');
-          genreItem.textContent = genre.name;
-          genreItem.className += "genero"
-          detalleGenres.appendChild(genreItem);
+            const genreItem = document.createElement('li');
+            genreItem.textContent = genre.name;
+            genreItem.className += "genero"
+            detalleGenres.appendChild(genreItem);
         });
         const offcanvas = new bootstrap.Offcanvas(document.getElementById('detallePelicula'));
         offcanvas.show();
-      };
+    };
+
+    document.getElementById('btnagregarlista').addEventListener('click', function () {
+
+        const detalleTitulo = document.getElementById('detalleTitulo').textContent;
+        const detalleOverview = document.getElementById('detalleOverview').textContent;
+
+        // Crear un objeto con la información de la película
+        const peliculaSeleccionada = {
+            title: detalleTitulo,
+            overview: detalleOverview
+        };
+
+        console.log('Datos de la película:', peliculaSeleccionada);
+        alert('Película agregada a la lista correctamente');
+
+        // Realizar la solicitud POST al servidor backend
+        return fetch('http://localhost:3000/peliculas', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(peliculaSeleccionada),
+            mode: 'cors',
+        });
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Película agregada a la lista correctamente:', data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+});
+
+
+document.getElementById('btncerrarsesion').addEventListener('click', function () {
+    localStorage.removeItem("japflixuser");
 });
